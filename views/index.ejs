@@ -5,22 +5,56 @@
 	<title>Node Authentication</title>
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
-	<style>
-		body 		{ padding-top:80px; }
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <style>
+		body 		{ padding-top: 80px; }
+        td          { text-align: left; }
+        th          { text-align: left; }
 	</style>
 </head>
 <body>
 <div class="container">
 
-	<div class="jumbotron text-center">
-		<h1><span class="fa fa-lock"></span> Node Authentication</h1>
+    <div class="jumbotron text-center">
+		<h1><span class="fa fa-key"></span> DMK Waiting Server (BETA)</h1>
 
-		<p>Login or Register with:</p>
+		<p>Login or Register:</p>
 
-		<a href="/login" class="btn btn-default"><span class="fa fa-user"></span> Local Login</a>
-		<a href="/signup" class="btn btn-default"><span class="fa fa-user"></span> Local Signup</a>
+		<a href="/login" class="btn btn-default"><span class="fa fa-sign-in"></span> Log in</a>
+		<a href="/signup" class="btn btn-default"><span class="fa fa-edit"></span> Sign up</a>
 	</div>
 
+    <div class="jumbotron text-center">
+		<h1><span class="fa fa-list-ol"></span> Waiting list</h1>
+        <div class = "text-center" id="list"></div>
+	</div>
+
+    
+
 </div>
-</body>
+<script type="text/javascript">
+    $(document).ready(function() {
+        //alert("aap");
+        $.ajax({
+            url: '/list',
+            success: function(list) {
+                var txt = '<table class="table">';
+                txt = txt + '<thead align="center"><tr><th>#</th><th>PFS ID</th><th>Name</th><th>Timestamp</th><th>Status</th></tr></thead>';
+                txt = txt + '<tbody>';
+                for (var i = 0; i < list.length; i++){
+                    txt = txt + "<tr>";
+                    txt = txt + "<td>" + (i+1) + "</td>";
+                    txt = txt + "<td>" + list[i].pfsid + "</td>";
+                    txt = txt + "<td>" + list[i].name + "</td>";
+                    txt = txt + "<td>" + (new Date(list[i].timestamp)) + "</td>";
+                    txt = txt + "<td>" + list[i].status + "</td>";
+                    txt = txt + "</tr>";
+                }
+                txt = txt + "</tbody></table>";
+                $("#list").html(txt);
+            }});
+    });
+</script>
+    </body>
 </html>

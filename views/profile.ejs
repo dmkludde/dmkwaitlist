@@ -22,18 +22,38 @@
 		<!-- LOCAL INFORMATION -->
 		<div class="col-sm-6">
 			<div class="well">
-				<h3><span class="fa fa-user"></span> Local</h3>
+				<h3><span class="fa fa-user"></span> <%= user.local.forumname %></h3>
 					<p>
-						<strong>id</strong>:          <%= user._id %><br>
-						<strong>pfsid</strong>:       <%= user.local.pfsid %><br>
-						<strong>status</strong>:      <%= user.local.status %><br>
-						<strong>timestamp</strong>:   <%= user.local.timestamp %><br>
-						<strong>forumname</strong>:   <%= user.local.forumname %><br>
-						<strong>password</strong>:    <%= user.local.password %>
+						<strong>PFS ID</strong>:       <%= user.local.pfsid %><br>
+						<strong>Status</strong>:      <%= user.local.status %><br>
+						<strong>Timestamp</strong>:   <%= user.local.timestamp %><br>
+						<% if(user.local.status == "Active") { %>
+                            <a href="/deactivate" class="btn btn-default btn-sm">Remove me from list</a>
+                        <% } %>
+                        <% if(user.local.status == "Inactive") { %>
+                            <a href="/activate" class="btn btn-default btn-sm">Add me to the list</a>
+                        <% } %>
+                        <% if(user.local.status == "Calling") { %>
+                            <strong>Being called by: </strong> <%= user.local.calledby %><br>
+                            <a href="/pass" class="btn btn-default btn-sm">Pass up on this call</a>
+                        <% } %>
+                        <% if(user.local.status == "Calling") { %>
+                            <strong>Being called by: </strong> <%= user.local.calledby %><br>
+                            <a href="/accept" class="btn btn-default btn-sm">Accept the call</a>
+                        <% } %>
+                        
 					</p>
 
 			</div>
 		</div>
+		<div class="col-sm-6">
+			<div class="well">
+                <h3><span class="fa fa-user"></span> GM Dashboard</h3>
+                <% if(!user.local.dmactive) { %>
+                <p>Please send DM Kludde a private message if you want to be able to call players</p>
+                <% } %>
+            </div>
+        </div>
 
 	</div>
 

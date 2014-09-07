@@ -70,29 +70,7 @@ module.exports = function(passport) {
                         throw err;
                     return done(null, newUser);
                 });
-                User.find( {'local.timestamp' : {$gt : 0} })
-                    .limit(10)
-                    .sort({'local.timestamp' : 1})
-                    .select('local.timestamp local.pfsid')
-                    .where('local.status').in(['Active'])
-                    .exec( 
-                        function(err,theuser) {
-                            if(err) {
-                                console.log("Err"); console.log(err);}
-                            if(theuser) {
-                                //console.log("User"); 
-                                //console.log(theuser);
-                                        
-                                for (var i=0; i<theuser.length; i++){
-                                    aap = theuser[i];
-                                    console.log(aap);
-                                    if(aap.local){
-                                        console.log(aap.local.timestamp);
-                                        console.log(aap.local.pfsid);
-                                    }
-                                }
-                            }
-                        });
+                
             }
 
         });
