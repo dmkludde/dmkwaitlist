@@ -1,6 +1,6 @@
 // app/routes.js
 var User       		= require('../app/models/user');
-
+var DMKid = '108716';
 module.exports = function(app, passport) {
 
 	// =====================================
@@ -14,11 +14,18 @@ module.exports = function(app, passport) {
 	});
 
     app.get('/list', function(req,res){
+        liststatus = ['Active', 'Inactive'];
+        limitnumber = 999;
+        if(req.query){
+            if (req.query.status){
+                liststatus = [req.query.status];
+            }
+        }
         User.find( {'local.timestamp' : {$gt : 0} })
-            .limit(10)
+            .limit(limitnumber)
             .sort({'local.timestamp' : 1})
             .select('local.timestamp local.pfsid local.forumname local.status')
-            .where('local.status').in(['Active'])
+            .where('local.status').in(liststatus)
             .exec( 
                 function(err,theuser) {
                     if(err) {
@@ -103,6 +110,7 @@ module.exports = function(app, passport) {
             res.redirect('/profile');
         });
     });
+    
     app.get('/deactivate', isLoggedIn, function(req, res) {
         req.user.local.status = "Inactive";
         req.user.local.timestamp = new Date();
@@ -110,6 +118,30 @@ module.exports = function(app, passport) {
             res.redirect('/profile');
         });
     });
+    
+    app.get('/makedm', isLoggedIn, function(req, res) {
+        if(req.user.local.pfsid == DMKid){
+            if(req.query && req.query.pfsid) {
+                User.findOne({ 'local.pfsid' : req.query.pfsid })
+                .exec(function(err,user){
+                    if(err)
+                        throw err;
+                    if(user){
+                        console.log("found user");
+                        console.log(user.pfsid);
+                        user.local.dmactive = "True";
+                        user.save(function(err) {
+                            res.redirect('/profile');
+                        });
+                    }            
+                });
+            }
+        } else {
+            res.redirect('/');
+        }
+        //
+    });
+    
 };
 
 // route middleware to make sure

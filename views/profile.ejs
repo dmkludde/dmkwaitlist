@@ -5,15 +5,20 @@
 	<title>Node Authentication</title>
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
-	<style>
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <style>
 		body 		{ padding-top:80px; word-wrap:break-word; }
+        td          { text-align: left; }
+        th          { text-align: left; }
+        .hide       { visibility: hidden; }
 	</style>
 </head>
 <body>
 <div class="container">
 
 	<div class="page-header text-center">
-		<h1><span class="fa fa-anchor"></span> Profile Page</h1>
+		<h1><span class="fa fa-anchor"></span> Dashboard</h1>
 		<a href="/logout" class="btn btn-default btn-sm">Logout</a>
 	</div>
 
@@ -22,9 +27,9 @@
 		<!-- LOCAL INFORMATION -->
 		<div class="col-sm-6">
 			<div class="well">
-				<h3><span class="fa fa-user"></span> <%= user.local.forumname %></h3>
+				<h3><span class="fa fa-user"></span> <%= user.local.forumname %> (<%= user.local.pfsid %>)</h3>
 					<p>
-						<strong>PFS ID</strong>:       <%= user.local.pfsid %><br>
+						<strong>PFS ID</strong>:    <%= user.local.pfsid %><br>
 						<strong>Status</strong>:      <%= user.local.status %><br>
 						<strong>Timestamp</strong>:   <%= user.local.timestamp %><br>
 						<% if(user.local.status == "Active") { %>
@@ -56,7 +61,42 @@
         </div>
 
 	</div>
-
+    <div class="jumbotron text-center">
+		<h1><span class="fa fa-list-ol"></span> Waiting list</h1>
+        <div class = "text-center" id="list"></div>
+	</div>
+    <div id="pfsid" class="hide"><%= user.local.pfsid %></div>
 </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        //alert("aap");
+        $.ajax({
+            url: '/list',
+            success: function(list) {
+                var txt = '<table class="table">';
+                txt = txt + '<thead align="center"><tr><th>#</th><th>PFS ID</th><th>Name</th><th>Timestamp</th><th>Status</th></tr></thead>';
+                txt = txt + '<tbody>';
+                pfsid = $("#pfsid").html();
+                for (var i = 0; i < list.length; i++){
+                    lopen = "";
+                    lclose = "";
+                    if( (list[i].pfsid +"")==pfsid ){
+                        lopen = "<strong>";
+                        lclose = "</strong>";
+                    }
+                    //alert(user.local.pfsid);
+                    txt = txt + "<tr>";
+                    txt = txt + "<td>" + lopen + (i+1) + lclose + "</td>";
+                    txt = txt + "<td>" + lopen + list[i].pfsid + lclose + "</td>";
+                    txt = txt + "<td>" + lopen + list[i].name + lclose + "</td>";
+                    txt = txt + "<td>" + lopen + (new Date(list[i].timestamp)) + lclose + "</td>";
+                    txt = txt + "<td>" + lopen + list[i].status + lclose + "</td>";
+                    txt = txt + "</tr>";
+                }
+                txt = txt + "</tbody></table>";
+                $("#list").html(txt);
+            }});
+    });
+</script>   
 </body>
 </html>
