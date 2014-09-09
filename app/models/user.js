@@ -11,7 +11,8 @@ var userSchema = mongoose.Schema({
         timestamp    : Date,
         status       : String, //One of Active, Called
         password     : String,
-        dmactive     : String
+        dmactive     : String,
+        calledpfsid  : Number
     },
     facebook         : {
         id           : String,

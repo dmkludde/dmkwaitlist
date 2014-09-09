@@ -27,56 +27,99 @@
 		<!-- LOCAL INFORMATION -->
 		<div class="col-sm-6">
 			<div class="well">
-				<h3><span class="fa fa-user"></span> <%= user.local.forumname %> (<%= user.local.pfsid %>)</h3>
-					<p>
-						<strong>PFS ID</strong>:    <%= user.local.pfsid %><br>
-						<strong>Status</strong>:      <%= user.local.status %><br>
-						<strong>Timestamp</strong>:   <%= user.local.timestamp %><br>
+				<div class="well">
+                    <h3><span class="fa fa-user"></span> <%= user.local.forumname %> (<%= user.local.pfsid %>)</h3>
+				</div>
+                <div class="well">
+                    <h3><span></span> Current status: <%= user.local.status %></h3>
+                    <p>
+						<!--<strong>PFS ID</strong>:    <%= user.local.pfsid %><br>-->
+						<!--<strong>Status</strong>:      <br>-->
+                        
+						<!--<strong>Timestamp</strong>:   <%= user.local.timestamp %><br>-->
 						<% if(user.local.status == "Active") { %>
-                            <a href="/deactivate" class="btn btn-default btn-sm">Remove me from list</a>
+                            <a href="/transition?status=Inactive" class="btn btn-default btn-sm">Remove me from list</a>
                         <% } %>
                         <% if(user.local.status == "Inactive") { %>
-                            <a href="/activate" class="btn btn-default btn-sm">Add me to the list</a>
+                            <a href="/transition?status=Active" class="btn btn-default btn-sm">Add me to the list</a>
                         <% } %>
-                        <% if(user.local.status == "Calling") { %>
-                            <strong>Being called by: </strong> <%= user.local.calledby %><br>
-                            <a href="/pass" class="btn btn-default btn-sm">Pass up on this call</a>
+                        <% if(user.local.status == "Called") { %>
+                            <strong>Being called by: </strong> <%= user.local.calledpfsid %><br>
+                            <a href="/transition?status=Active" class="btn btn-default btn-sm">Pass up on this call</a>
+                            <a href="/transition?status=InGame" class="btn btn-default btn-sm">Accept the call</a>
                         <% } %>
-                        <% if(user.local.status == "Calling") { %>
-                            <strong>Being called by: </strong> <%= user.local.calledby %><br>
-                            <a href="/accept" class="btn btn-default btn-sm">Accept the call</a>
+                        <% if(user.local.status == "InGame") { %>
+                            <strong>In a game with: </strong> <%= user.local.calledby %><br>
+                            <a href="/transition?status=Active" class="btn btn-default btn-sm">I've finished my game, put me back on the list</a>
                         <% } %>
                         
 					</p>
-
-			</div>
+                </div>
+            </div>
 		</div>
+        
 		<div class="col-sm-6">
 			<div class="well">
-                <h3><span class="fa fa-user"></span> GM Dashboard</h3>
-                <% if(!user.local.dmactive) { %>
-                <p>Please send DM Kludde a private message if you want to be able to call players</p>
+                <div class="well">
+                    <h3><span class="fa fa-user"></span> GM Dashboard</h3>
+                    <% if(!user.local.dmactive) { %>
+                    <p>Please send DM Kludde a private message if you want to be able to call players</p>
+                    <% } %>
+                    <% if(user.local.dmactive) { %>
+                </div>
+                <div class="well">
+                    <h3><span class="fa fa-group"></span> Call players for a game</h3>
+                    <div id="dmlist"></div>
+                </div>
                 <% } %>
             </div>
         </div>
-
-	</div>
-    <div class="jumbotron text-center">
-		<h1><span class="fa fa-list-ol"></span> Waiting list</h1>
-        <div class = "text-center" id="list"></div>
-	</div>
-    <div id="pfsid" class="hide"><%= user.local.pfsid %></div>
+    </div>
 </div>
- <script type="text/javascript">
+<div class='container'>
+    <div class="row">
+
+        <div class="text-center jumbotron">
+            <div class="well">
+
+                <h1><span class="fa fa-list-ol"></span> Waiting list</h1>
+                <div class="well">
+                    <div class = "text-center" id="list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="pfsid" class="hide"><%= user.local.pfsid %></div>
+    <div id="dmactive" class="hide">
+        <% if (user.local.dmactive) { %>
+            1
+        <% } else{ %>
+            0
+        <% } %>
+    </div>
+
+</div>
+<script type="text/javascript">
+    var iconname = {'Active' : 'fa-check-circle-o',
+                     'Inactive' : 'fa-times-circle-o',
+                     'Called' : 'fa-exclamation',
+                     'InGame' : 'fa-child'
+                    };
+    var pfsid = $("#pfsid").html();
+    var dmactive = ($("#dmactive").html()==1); 
+                 
     $(document).ready(function() {
-        //alert("aap");
         $.ajax({
-            url: '/list',
+            url: '/list?status=DisplayList',
             success: function(list) {
                 var txt = '<table class="table">';
-                txt = txt + '<thead align="center"><tr><th>#</th><th>PFS ID</th><th>Name</th><th>Timestamp</th><th>Status</th></tr></thead>';
+                txt = txt + '<thead align="center"><tr><th>#</th>';
+                //txt = txt + '<th>PFS ID</th>';
+                txt = txt + '<th>Name</th><th></th><th>Status</th>';
+                if (dmactive) { txt = txt + '<th></th>' };
+                txt = txt + '</tr></thead>';
                 txt = txt + '<tbody>';
-                pfsid = $("#pfsid").html();
                 for (var i = 0; i < list.length; i++){
                     lopen = "";
                     lclose = "";
@@ -84,19 +127,86 @@
                         lopen = "<strong>";
                         lclose = "</strong>";
                     }
-                    //alert(user.local.pfsid);
                     txt = txt + "<tr>";
                     txt = txt + "<td>" + lopen + (i+1) + lclose + "</td>";
-                    txt = txt + "<td>" + lopen + list[i].pfsid + lclose + "</td>";
+                    //txt = txt + "<td>" + lopen + list[i].pfsid + lclose + "</td>";
                     txt = txt + "<td>" + lopen + list[i].name + lclose + "</td>";
-                    txt = txt + "<td>" + lopen + (new Date(list[i].timestamp)) + lclose + "</td>";
-                    txt = txt + "<td>" + lopen + list[i].status + lclose + "</td>";
+                    //txt = txt + "<td>" + lopen + (new Date(list[i].timestamp)) + lclose + "</td>";
+                    txt = txt + '<td class="fa ' + iconname[list[i].status] +'"/><td>' + lopen + list[i].status + lclose + "</td>";
+                    if (dmactive) {
+                        if(list[i].status == 'Called') {
+                            if(list[i].calledby+""==pfsid) {
+                            txt = txt + '<td>';
+                            txt = txt + '<a href="/uncallplayer?pfsid=' + list[i].pfsid + '" class="btn btn-default btn-sm">Cancel call</a>';
+                            txt = txt + '</td>';
+                            }
+                        }
+                        else if (list[i].status == 'Active' && list[i].pfsid != pfsid) {
+                            txt = txt + '<td>';
+                            txt = txt + '<a href="/callplayer?pfsid=' + list[i].pfsid + '" class="btn btn-default btn-sm">Call player</a>';
+                            txt = txt + '</td>';
+                        }
+                        else {
+                            txt = txt +'<td></td>';
+                            //Nothing?
+                        }
+
+                    }
                     txt = txt + "</tr>";
                 }
                 txt = txt + "</tbody></table>";
                 $("#list").html(txt);
             }});
+        $.ajax({
+            url: '/list?status=CalledAccept&origin='+pfsid,
+            success: function(list) {
+                var txt = '<table class="table">';
+                txt = txt + '<thead align="center"><tr><th>#</th>';
+                //txt = txt + '<th>PFS ID</th>';
+                txt = txt + '<th>Name</th><th></th><th>Status</th>';
+                if (dmactive) { txt = txt + '<th></th>' };
+                txt = txt + '</tr></thead>';
+                txt = txt + '<tbody>';
+                for (var i = 0; i < list.length; i++){
+                    lopen = "";
+                    lclose = "";
+                    if( (list[i].pfsid +"")==pfsid ){
+                        lopen = "<strong>";
+                        lclose = "</strong>";
+                    }
+                    txt = txt + "<tr>";
+                    txt = txt + "<td>" + lopen + (i+1) + lclose + "</td>";
+                    //txt = txt + "<td>" + lopen + list[i].pfsid + lclose + "</td>";
+                    txt = txt + "<td>" + lopen + list[i].name + lclose + "</td>";
+                    //txt = txt + "<td>" + lopen + (new Date(list[i].timestamp)) + lclose + "</td>";
+                    txt = txt + '<td class="fa ' + iconname[list[i].status] +'"/><td>' + lopen + list[i].status + lclose + "</td>";
+                    if (dmactive) {
+                        if(list[i].status == 'Called') {
+                            if(list[i].calledby+""==pfsid) {
+                            txt = txt + '<td>';
+                            txt = txt + '<a href="/uncallplayer?pfsid=' + list[i].pfsid + '" class="btn btn-default btn-sm">Cancel call</a>';
+                            txt = txt + '</td>';
+                            }
+                        }
+                        else if (list[i].status == 'Active' && list[i].pfsid != pfsid) {
+                            txt = txt + '<td>';
+                            txt = txt + '<a href="/callplayer?pfsid=' + list[i].pfsid + '" class="btn btn-default btn-sm">Call player</a>';
+                            txt = txt + '</td>';
+                        }
+                        else {
+                            txt = txt +'<td></td>';
+                            //Nothing?
+                        }
+
+                    }
+                    txt = txt + "</tr>";
+                }
+                txt = txt + "</tbody></table>";
+                $("#dmlist").html(txt);
+            }});
+        
     });
-</script>   
+     
+</script>
 </body>
 </html>
