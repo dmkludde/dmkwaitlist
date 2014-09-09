@@ -58,13 +58,14 @@ module.exports = function(passport) {
                 var newUser            = new User();
 
                 // set the user's local credentials
-                newUser.local.pfsid    = pfsid;
+                newUser.local.pfsid  = pfsid;
                 newUser.local.forumname = req.body.forumname;
                 newUser.local.status = "Active";
                 newUser.local.timestamp = new Date();
                 newUser.local.password = newUser.generateHash(password); // use the generateHash function in our user model
-
-				// save the user
+                
+                    
+                // save the user
                 newUser.save(function(err) {
                     if (err)
                         throw err;
