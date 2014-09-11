@@ -44,12 +44,12 @@
                             <a href="/transition?status=Active" class="btn btn-default btn-sm">Add me to the list</a>
                         <% } %>
                         <% if(user.local.status == "Called") { %>
-                            <strong>Being called by: </strong> <%= user.local.calledpfsid %><br>
+                            <strong>Being called by: </strong> <span id="caller"> </span><br>
                             <a href="/transition?status=Active" class="btn btn-default btn-sm">Pass up on this call</a>
                             <a href="/transition?status=InGame" class="btn btn-default btn-sm">Accept the call</a>
                         <% } %>
                         <% if(user.local.status == "InGame") { %>
-                            <strong>In a game with: </strong> <%= user.local.calledby %><br>
+                            <strong>In a game with: </strong> <span id="caller"> </span><br>
                             <a href="/transition?status=Active" class="btn btn-default btn-sm">I've finished my game, put me back on the list</a>
                         <% } %>
                         
@@ -110,6 +110,13 @@
     var dmactive = ($("#dmactive").html()==1); 
                  
     $(document).ready(function() {
+        $.ajax({
+            url: '/getcaller',
+            success: function(name) {
+                $("#caller").html(name);
+            }});
+        
+            
         $.ajax({
             url: '/list?status=DisplayList',
             success: function(list) {

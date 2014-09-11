@@ -79,6 +79,25 @@ module.exports = function(app, passport) {
 		res.render('login.ejs', { message: req.flash('loginMessage') });
 	});
 
+    app.get('/getcaller', isLoggedIn, function(req,res){
+        if(req.user.local.calledpfsid){
+            res.redirect('/namebyid?pfsid='+req.user.local.calledpfsid);
+        } else {
+            res.redirect('nobody');
+        }
+    });
+    
+    app.get('/namebyid', isLoggedIn, function(req,res){
+        if (req.query && req.query.pfsid){
+            User.findOne({'local.pfsid' : parseInt(req.query.pfsid)})
+            .exec(function(err, user) {
+                if(err) throw err;
+                res.send(user.local.forumname);
+            });
+        }else {
+            res.send("bad query");
+        }
+    });
 	// process the login form
 	app.post('/login', passport.authenticate('local-login', {
 		successRedirect : '/profile', // redirect to the secure profile section
